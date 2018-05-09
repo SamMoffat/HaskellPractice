@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Data.List  
 import qualified Geometry.Sphere as Sphere
 import qualified Geometry.Cuboid as Cuboid
@@ -42,3 +43,11 @@ search needle haystack =
 
 ---TOOK A BREAK FROM LEARNING A SHIT TONNE OF FUNCTIONS
 
+=======
+import Data.List  
+--import Data.List (nub, sort)  <- select specific functions
+--import Data.List hiding (nub)  <- everything except nub
+
+numUniques :: (Eq a) => [a] -> Int  
+numUniques = length . nub 
+>>>>>>> 47b890afccbafee1fd52e2ca81e71a4550ff3071
