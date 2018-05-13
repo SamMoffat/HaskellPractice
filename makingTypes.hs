@@ -1,3 +1,6 @@
+
+import qualified Data.Map as Map
+  
 data Point = Point Float Float deriving (Show)
 data Shape = Circle Point Float | Rectangle Point Point deriving (Show)
 data Person = Person { firstName :: String
@@ -21,6 +24,39 @@ data Guy = Guy { firstname :: String
                } deriving (Eq, Show, Read) --can write Guy == Guy for bool. all attributes must fit within Eq
 data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday   
            deriving (Eq, Ord, Show, Read, Bounded, Enum) 
+
+--type PhoneBook = [(String,String)]  --makes PhoneBook a synonym of [(String, String)]
+type Code = String  
+type LockerMap = Map.Map Int (LockerState, Code)
+type PhoneNumber = String  
+type Name = String  
+type PhoneBook = [(Name,PhoneNumber)]  --more readable
+type AssocList k v = [(k,v)] --synonym types can have parameters as well
+--type IntMap v = Map Int v  --make synonym type of multiple functions with params
+--type IntMap = Map Int      --or without.
+data LockerState = Taken | Free deriving (Show, Eq)  
+data TrafficLight = Red | Yellow | Green  
+
+instance Eq TrafficLight where  --instance allows implementation of Eq
+   Red == Red = True  
+   Green == Green = True  
+   Yellow == Yellow = True  
+   _ == _ = False 
+
+instance Show TrafficLight where   --implements instance of Show, without this, show wouldn't work for our new self-defiend type.
+   show Red = "Red light"  
+   show Yellow = "Yellow light"  
+   show Green = "Green light" 
+
+--instance Eq (Maybe m) where  --problem here, maybe m has to be equated, but the contents of m doesn't.
+--   Just x == Just y = x == y  
+--   Nothing == Nothing = True  
+--   _ == _ = False
+
+--instance (Eq m) => Eq (Maybe m) where  --this makes the value m as well as Maybe m have to be equatable
+--   Just x == Just y = x == y  
+--   Nothing == Nothing = True  
+--   _ == _ = False 
 
 surface :: Shape -> Float
 surface (Circle _ r) = pi * r ^ 2
@@ -48,3 +84,13 @@ vecMult :: (Num t) => Vector t -> t -> Vector t
 scalarMult :: (Num t) => Vector t -> Vector t -> t
 (Vector a b c) `scalarMult` (Vector d e f) = a*d + b*e + c*f
 
+inPhoneBook :: Name -> PhoneNumber -> PhoneBook -> Bool
+inPhoneBook name pNo pBook = (name,pNo) `elem` pBook 
+
+lockerLookup :: Int -> LockerMap -> Either String Code  
+lockerLookup lockerNumber map =   
+   case Map.lookup lockerNumber map of   
+      Nothing -> Left $ "Locker number " ++ show lockerNumber ++ " doesn't exist!"  
+      Just (state, code) -> if state /= Taken   
+                              then Right code  
+                              else Left $ "Locker " ++ show lockerNumber ++ " is already taken!"
