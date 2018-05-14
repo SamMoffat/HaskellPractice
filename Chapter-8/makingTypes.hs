@@ -36,17 +36,23 @@ type AssocList k v = [(k,v)] --synonym types can have parameters as well
 --type IntMap = Map Int      --or without.
 data LockerState = Taken | Free deriving (Show, Eq)  
 data TrafficLight = Red | Yellow | Green  
+data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
 
 instance Eq TrafficLight where  --instance allows implementation of Eq
    Red == Red = True  
    Green == Green = True  
    Yellow == Yellow = True  
    _ == _ = False 
-
 instance Show TrafficLight where   --implements instance of Show, without this, show wouldn't work for our new self-defiend type.
    show Red = "Red light"  
    show Yellow = "Yellow light"  
    show Green = "Green light" 
+instance Functor Tree where  
+   fmap f EmptyTree = EmptyTree  
+   fmap f (Node x leftsub rightsub) = Node (f x) (fmap f leftsub) (fmap f rightsub) --map is a way of applying a function onto a list. fmap is a way of applying a function onto the contents of another function.                                                                                   --In this example, Functor Tree shows how fmap works on Tree to perform the function f onto the contents of the tree
+--instance Functor (Either a) where    --example of functor for Either constraint.
+--   fmap f (Right x) = Right (f x)  
+--   fmap f (Left x) = Left x
 
 --instance Eq (Maybe m) where  --problem here, maybe m has to be equated, but the contents of m doesn't.
 --   Just x == Just y = x == y  
@@ -94,3 +100,20 @@ lockerLookup lockerNumber map =
       Just (state, code) -> if state /= Taken   
                               then Right code  
                               else Left $ "Locker " ++ show lockerNumber ++ " is already taken!"
+
+singleton :: a -> Tree a  
+singleton x = Node x EmptyTree EmptyTree  
+  
+treeInsert :: (Ord a) => a -> Tree a -> Tree a  
+treeInsert x EmptyTree = singleton x  
+treeInsert x (Node a left right)   
+   | x == a = Node x left right  --can be removed and change below to <= if you want to keep repeats
+   | x < a  = Node a (treeInsert x left) right  
+   | x > a  = Node a left (treeInsert x right)
+
+treeElem :: (Ord a) => a -> Tree a -> Bool  
+treeElem x EmptyTree = False  
+treeElem x (Node a left right)  
+   | x == a = True  
+   | x < a  = treeElem x left  
+   | x > a  = treeElem x right 
